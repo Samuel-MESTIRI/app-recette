@@ -7,9 +7,12 @@ import { ThemedView } from '@/components/themed-view';
 export default function ModalScreen() {
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
+      <ThemedText type="title">Ajouter une recette</ThemedText>
+      <ThemedView style={styles.content}>
+        <ThemedText>Formulaire pour ajouter une nouvelle recette à venir...</ThemedText>
+      </ThemedView>
       <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
+        <ThemedText type="link">Retour à l'accueil</ThemedText>
       </Link>
     </ThemedView>
   );
@@ -21,6 +24,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  content: {
+    marginVertical: 20,
   },
   link: {
     marginTop: 15,

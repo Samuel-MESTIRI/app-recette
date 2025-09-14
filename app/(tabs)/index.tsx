@@ -1,98 +1,110 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import Button from '@/components/ui/button';
+import Card from '@/components/ui/card';
+import { Colors, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ScrollView, StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title">Mes Recettes</ThemedText>
+          <ThemedText type="caption" style={{ color: colors.textSecondary }}>
+            Découvrez et organisez vos recettes préférées
+          </ThemedText>
+        </ThemedView>
+
+        <ThemedView style={styles.content}>
+          <Card style={styles.welcomeCard}>
+            <ThemedText type="heading" style={styles.welcomeTitle}>
+              Bienvenue ! 👋
+            </ThemedText>
+            <ThemedText style={[styles.welcomeText, { color: colors.textSecondary }]}>
+              Commencez à créer votre collection de recettes personnalisée.
+            </ThemedText>
+            <Button
+              title="Ajouter une recette"
+              onPress={() => {
+                // Navigation vers l'ajout de recette
+              }}
+              style={styles.addButton}
+            />
+          </Card>
+
+          <ThemedView style={styles.statsSection}>
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              Aperçu
+            </ThemedText>
+            <ThemedView style={styles.statsContainer}>
+              <Card style={styles.statCard}>
+                <ThemedText type="heading" style={{ color: colors.primary }}>
+                  0
+                </ThemedText>
+                <ThemedText type="caption" style={{ color: colors.textSecondary }}>
+                  Recettes
+                </ThemedText>
+              </Card>
+              <Card style={styles.statCard}>
+                <ThemedText type="heading" style={{ color: colors.primary }}>
+                  0
+                </ThemedText>
+                <ThemedText type="caption" style={{ color: colors.textSecondary }}>
+                  Favoris
+                </ThemedText>
+              </Card>
+            </ThemedView>
+          </ThemedView>
+        </ThemedView>
+      </ScrollView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  header: {
+    padding: Spacing.md,
+    paddingBottom: Spacing.sm,
+  },
+  content: {
+    flex: 1,
+    padding: Spacing.md,
+    gap: Spacing.lg,
+  },
+  welcomeCard: {
+    padding: Spacing.lg,
+  },
+  welcomeTitle: {
+    marginBottom: Spacing.sm,
+  },
+  welcomeText: {
+    marginBottom: Spacing.lg,
+    lineHeight: 22,
+  },
+  addButton: {
+    marginTop: Spacing.sm,
+  },
+  statsSection: {
+    gap: Spacing.md,
+  },
+  sectionTitle: {
+    marginBottom: Spacing.sm,
+  },
+  statsContainer: {
     flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  statCard: {
+    flex: 1,
     alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+    padding: Spacing.lg,
   },
 });

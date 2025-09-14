@@ -1,29 +1,62 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Design system basé sur le UI kit fourni
+ * Couleurs principales : Vert #4CAF50, arrière-plans clairs, design moderne
  */
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Couleurs du UI kit
+const primaryGreen = '#4CAF50';
+const primaryGreenDark = '#388E3C';
+const primaryGreenLight = '#81C784';
+const backgroundLight = '#F8F9FA';
+const backgroundWhite = '#FFFFFF';
+const textPrimary = '#1A1A1A';
+const textSecondary = '#6B7280';
+const textLight = '#9CA3AF';
+const borderLight = '#E5E7EB';
+const shadowColor = '#000000';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    text: textPrimary,
+    textSecondary: textSecondary,
+    textLight: textLight,
+    background: backgroundLight,
+    backgroundWhite: backgroundWhite,
+    tint: primaryGreen,
+    primary: primaryGreen,
+    primaryDark: primaryGreenDark,
+    primaryLight: primaryGreenLight,
+    border: borderLight,
+    shadow: shadowColor,
+    icon: textSecondary,
+    tabIconDefault: textSecondary,
+    tabIconSelected: primaryGreen,
+    success: primaryGreen,
+    warning: '#FF9800',
+    error: '#F44336',
+    info: '#2196F3',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    text: '#FFFFFF',
+    textSecondary: '#B3B3B3',
+    textLight: '#808080',
+    background: '#121212',
+    backgroundWhite: '#1E1E1E',
+    tint: primaryGreenLight,
+    primary: primaryGreenLight,
+    primaryDark: primaryGreen,
+    primaryLight: '#A5D6A7',
+    border: '#333333',
+    shadow: '#000000',
+    icon: '#B3B3B3',
+    tabIconDefault: '#808080',
+    tabIconSelected: primaryGreenLight,
+    success: primaryGreenLight,
+    warning: '#FFB74D',
+    error: '#EF5350',
+    info: '#42A5F5',
   },
 };
 
@@ -51,3 +84,57 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+
+// Tailles de police basées sur le UI kit
+export const FontSizes = {
+  xs: 12,
+  sm: 14,
+  base: 16,
+  lg: 18,
+  xl: 20,
+  '2xl': 24,
+  '3xl': 30,
+  '4xl': 36,
+};
+
+// Espacements cohérents avec le design
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  '2xl': 48,
+  '3xl': 64,
+};
+
+// Rayons d'arrondis pour les composants
+export const BorderRadius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  full: 9999,
+};
+
+// Ombres pour les cards et composants
+export const Shadows = {
+  sm: {
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  md: {
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  lg: {
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+};
