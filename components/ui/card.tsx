@@ -7,7 +7,7 @@ interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   shadow?: 'sm' | 'md' | 'lg' | 'none';
-  padding?: 'sm' | 'md' | 'lg';
+  padding?: 'sm' | 'md' | 'lg' | 'none';
 }
 
 export default function Card({
@@ -34,6 +34,9 @@ export default function Card({
         break;
       case 'lg':
         baseStyle.padding = Spacing.lg;
+        break;
+      case 'none':
+        // Pas de padding
         break;
       default: // md
         baseStyle.padding = Spacing.md;
