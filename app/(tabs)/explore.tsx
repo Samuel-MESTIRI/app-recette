@@ -1,4 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
+import { showConfirmAlert, showErrorAlert, useCustomAlert } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { BorderRadius, Colors, FontSizes, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -8,7 +9,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -31,6 +31,7 @@ export default function ExploreScreen() {
     clearList,
     addManualItem
   } = useShopping();
+  const { showAlert, AlertComponent } = useCustomAlert();
   
   const [refreshing, setRefreshing] = useState(false);
   const [newItemName, setNewItemName] = useState('');
@@ -68,60 +69,49 @@ export default function ExploreScreen() {
   };
 
   const deleteItem = async (item: ShoppingItem) => {
-    Alert.alert(
+    showConfirmAlert(
+      showAlert,
       'Supprimer l\'élément',
       `Êtes-vous sûr de vouloir supprimer "${item.name}" ?`,
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await removeItem(item.id!);
-            } catch (error) {
-              Alert.alert('Erreur', 'Impossible de supprimer cet élément');
-            }
-          }
+      async () => {
+        try {
+          await removeItem(item.id!);
+        } catch (error) {
+          showErrorAlert(showAlert, 'Erreur', 'Impossible de supprimer cet élément');
         }
-      ]
+      }
     );
   };
 
   const clearAllItems = () => {
-    Alert.alert(
+    showConfirmAlert(
+      showAlert,
       'Vider la liste',
       'Êtes-vous sûr de vouloir supprimer tous les éléments ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Vider',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await clearList();
-            } catch (error) {
-              Alert.alert('Erreur', 'Impossible de vider la liste');
-            }
-          }
+      async () => {
+        try {
+          await clearList();
+        } catch (error) {
+          showErrorAlert(showAlert, 'Erreur', 'Impossible de vider la liste');
         }
-      ]
+      }
     );
   };
 
   const addNewItem = async () => {
     if (!newItemName.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir un nom pour l\'élément');
+      showErrorAlert(showAlert, 'Erreur', 'Veuillez saisir un nom pour l\'élément');
       return;
     }
 
     setIsAddingItem(true);
     try {
-      await addManualItem(newItemName.trim());
+      const itemToAdd = newItemName.trim();
+      await addManualItem(itemToAdd);
       setNewItemName(''); // Vider le champ après ajout
-      Alert.alert('Succès', `"${newItemName.trim()}" a été ajouté à votre liste`);
+      // Pas d'alert de succès - l'ajout se fait silencieusement
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible d\'ajouter cet élément');
+      showErrorAlert(showAlert, 'Erreur', 'Impossible d\'ajouter cet élément');
       console.error('Erreur lors de l\'ajout:', error);
     } finally {
       setIsAddingItem(false);
@@ -313,6 +303,9 @@ export default function ExploreScreen() {
           )}
         </>
       )}
+
+      {/* Custom Alert Component */}
+      {AlertComponent}
     </SafeAreaView>
   );
 }

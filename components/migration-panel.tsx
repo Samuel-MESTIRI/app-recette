@@ -1,3 +1,4 @@
+import { showConfirmAlert, showErrorAlert, showSuccessAlert, useCustomAlert } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -8,7 +9,7 @@ import {
     migrateDemoDataToFirebase
 } from '@/utils/migration';
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
@@ -16,11 +17,12 @@ export default function MigrationPanel() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const { user } = useAuth();
+  const { showAlert, AlertComponent } = useCustomAlert();
   const [loading, setLoading] = useState(false);
 
   const handleQuickTest = async () => {
     if (!user) {
-      Alert.alert('Erreur', 'Vous devez être connecté pour ajouter des données');
+      showErrorAlert(showAlert, 'Erreur', 'Vous devez être connecté pour ajouter des données');
       return;
     }
 
@@ -28,12 +30,12 @@ export default function MigrationPanel() {
     try {
       const success = await addQuickTestData(user.id);
       if (success) {
-        Alert.alert('Succès', '✅ Données de test ajoutées !');
+        showSuccessAlert(showAlert, 'Succès', '✅ Données de test ajoutées !');
       } else {
-        Alert.alert('Erreur', '❌ Échec de l\'ajout des données');
+        showErrorAlert(showAlert, 'Erreur', '❌ Échec de l\'ajout des données');
       }
     } catch (error) {
-      Alert.alert('Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      showErrorAlert(showAlert, 'Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
       setLoading(false);
     }
@@ -41,7 +43,7 @@ export default function MigrationPanel() {
 
   const handleSingleTest = async () => {
     if (!user) {
-      Alert.alert('Erreur', 'Vous devez être connecté pour ajouter des données');
+      showErrorAlert(showAlert, 'Erreur', 'Vous devez être connecté pour ajouter des données');
       return;
     }
 
@@ -49,12 +51,12 @@ export default function MigrationPanel() {
     try {
       const success = await addTestRecipe(user.id);
       if (success) {
-        Alert.alert('Succès', '✅ Recette de test ajoutée !');
+        showSuccessAlert(showAlert, 'Succès', '✅ Recette de test ajoutée !');
       } else {
-        Alert.alert('Erreur', '❌ Échec de l\'ajout de la recette');
+        showErrorAlert(showAlert, 'Erreur', '❌ Échec de l\'ajout de la recette');
       }
     } catch (error) {
-      Alert.alert('Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      showErrorAlert(showAlert, 'Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
       setLoading(false);
     }
@@ -62,34 +64,29 @@ export default function MigrationPanel() {
 
   const handleFullMigration = async () => {
     if (!user) {
-      Alert.alert('Erreur', 'Vous devez être connecté pour migrer les données');
+      showErrorAlert(showAlert, 'Erreur', 'Vous devez être connecté pour migrer les données');
       return;
     }
 
-    Alert.alert(
+    showConfirmAlert(
+      showAlert,
       'Migration complète',
       'Cela va ajouter TOUTES les recettes de démo. Continuer ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { 
-          text: 'Confirmer', 
-          onPress: async () => {
-            setLoading(true);
-            try {
-              const success = await migrateDemoDataToFirebase(user.id);
-              if (success) {
-                Alert.alert('Succès', '✅ Migration complète terminée !');
-              } else {
-                Alert.alert('Erreur', '❌ Échec de la migration');
-              }
-            } catch (error) {
-              Alert.alert('Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-            } finally {
-              setLoading(false);
-            }
+      async () => {
+        setLoading(true);
+        try {
+          const success = await migrateDemoDataToFirebase(user.id);
+          if (success) {
+            showSuccessAlert(showAlert, 'Succès', '✅ Migration complète terminée !');
+          } else {
+            showErrorAlert(showAlert, 'Erreur', '❌ Échec de la migration');
           }
+        } catch (error) {
+          showErrorAlert(showAlert, 'Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+        } finally {
+          setLoading(false);
         }
-      ]
+      }
     );
   };
 
@@ -97,12 +94,13 @@ export default function MigrationPanel() {
     setLoading(true);
     try {
       const hasData = await checkFirebaseData();
-      Alert.alert(
-        'État de la base de données', 
-        hasData ? '✅ La base contient des données' : '📭 La base est vide'
-      );
+      showAlert({
+        type: 'info',
+        title: 'État de la base de données',
+        message: hasData ? '✅ La base contient des données' : '📭 La base est vide'
+      });
     } catch (error) {
-      Alert.alert('Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      showErrorAlert(showAlert, 'Erreur', `❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
       setLoading(false);
     }
@@ -169,6 +167,9 @@ export default function MigrationPanel() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Custom Alert Component */}
+      {AlertComponent}
     </ThemedView>
   );
 }

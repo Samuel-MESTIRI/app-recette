@@ -1,18 +1,19 @@
 import { ThemedText } from '@/components/themed-text';
-import { Button, Card, Input } from '@/components/ui';
+import { Button, Card, Input, showErrorAlert, useCustomAlert } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SignupScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const { signup, isLoading } = useAuth();
+  const { showAlert, AlertComponent } = useCustomAlert();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -26,47 +27,47 @@ export default function SignupScreen() {
   const handleSignup = async () => {
     // Validation des champs
     if (!formData.name.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer votre nom');
+      showErrorAlert(showAlert, 'Erreur', 'Veuillez entrer votre nom');
       return;
     }
 
     if (!formData.email.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer votre email');
+      showErrorAlert(showAlert, 'Erreur', 'Veuillez entrer votre email');
       return;
     }
 
     if (formData.password.length < 6) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
+      showErrorAlert(showAlert, 'Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
+      showErrorAlert(showAlert, 'Erreur', 'Les mots de passe ne correspondent pas');
       return;
     }
 
     // Validation email basique
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      Alert.alert('Erreur', 'Veuillez entrer un email valide');
+      showErrorAlert(showAlert, 'Erreur', 'Veuillez entrer un email valide');
       return;
     }
 
     try {
       const success = await signup(formData.name, formData.email, formData.password);
       if (!success) {
-        Alert.alert(
+        showErrorAlert(
+          showAlert,
           'Erreur d\'inscription',
-          'Un compte avec cet email existe déjà ou une erreur est survenue.',
-          [{ text: 'OK' }]
+          'Un compte avec cet email existe déjà ou une erreur est survenue.'
         );
       }
       // La navigation se fait automatiquement via le layout quand isAuthenticated change
     } catch (error) {
-      Alert.alert(
+      showErrorAlert(
+        showAlert,
         'Erreur',
-        'Une erreur est survenue. Veuillez réessayer.',
-        [{ text: 'OK' }]
+        'Une erreur est survenue. Veuillez réessayer.'
       );
     }
   };
@@ -240,6 +241,9 @@ export default function SignupScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Custom Alert Component */}
+      {AlertComponent}
     </SafeAreaView>
   );
 }

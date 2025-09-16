@@ -1,18 +1,19 @@
 import { ThemedText } from '@/components/themed-text';
-import { Button, Card, Input } from '@/components/ui';
+import { Button, Card, Input, showErrorAlert, useCustomAlert } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors, FontSizes, Spacing } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const { login, isLoading } = useAuth();
+  const { showAlert, AlertComponent } = useCustomAlert();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,18 +23,18 @@ export default function LoginScreen() {
     try {
       const success = await login(email, password);
       if (!success) {
-        Alert.alert(
+        showErrorAlert(
+          showAlert,
           'Erreur de connexion',
-          'Vérifiez vos identifiants et réessayez. Utilisez demo@recette.com / password',
-          [{ text: 'OK' }]
+          'Vérifiez vos identifiants et réessayez. Utilisez demo@recette.com / password'
         );
       }
       // La navigation se fait automatiquement via le layout quand isAuthenticated change
     } catch (error) {
-      Alert.alert(
+      showErrorAlert(
+        showAlert,
         'Erreur',
-        'Une erreur est survenue. Veuillez réessayer.',
-        [{ text: 'OK' }]
+        'Une erreur est survenue. Veuillez réessayer.'
       );
     }
   };
@@ -176,6 +177,9 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Custom Alert Component */}
+      {AlertComponent}
     </SafeAreaView>
   );
 }

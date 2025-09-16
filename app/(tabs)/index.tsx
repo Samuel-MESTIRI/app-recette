@@ -1,6 +1,7 @@
 import RecipeCard from '@/components/recipe-card';
 import RecipeModal from '@/components/recipe-modal';
 import { ThemedText } from '@/components/themed-text';
+import { showErrorAlert, useCustomAlert } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { RECIPE_CATEGORIES } from '@/constants/demo-recipes';
 import { Colors, Spacing } from '@/constants/theme';
@@ -12,7 +13,7 @@ import { useShopping } from '@/hooks/useShopping';
 import { Recipe } from '@/types';
 import { checkFirebaseData, migrateDemoDataToFirebase } from '@/utils/migration';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -22,6 +23,7 @@ export default function HomeScreen() {
   const { addRecipeToTodo } = useApp();
   const { addRecipeIngredients } = useShopping();
   const { recipes: firebaseRecipes, loading, error, refetch } = useRecipes();
+  const { showAlert, AlertComponent } = useCustomAlert();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tous');
@@ -113,26 +115,21 @@ export default function HomeScreen() {
       try {
         // Ajouter aussi les ingrédients à la liste de courses
         await addRecipeIngredients(recipe.id || '', recipe.title, recipe.ingredients);
-        
-        Alert.alert(
-          'Ajouté !',
-          `"${recipe.title}" a été ajouté à vos recettes à faire et ses ingrédients à votre liste de courses`,
-          [{ text: 'OK' }]
-        );
+        // Pas d'alert de succès - l'ajout se fait silencieusement
       } catch (error) {
         console.error('Erreur lors de l\'ajout des ingrédients:', error);
-        Alert.alert(
+        showErrorAlert(
+          showAlert,
           'Partiellement ajouté',
-          `"${recipe.title}" a été ajouté à vos recettes à faire, mais il y a eu une erreur lors de l'ajout des ingrédients à la liste de courses`,
-          [{ text: 'OK' }]
+          `"${recipe.title}" a été ajouté à vos recettes à faire, mais il y a eu une erreur lors de l'ajout des ingrédients à la liste de courses`
         );
       }
     } else {
-      Alert.alert(
-        'Déjà ajouté',
-        `"${recipe.title}" est déjà dans votre liste de recettes à faire`,
-        [{ text: 'OK' }]
-      );
+      showAlert({
+        type: 'info',
+        title: 'Déjà ajouté',
+        message: `"${recipe.title}" est déjà dans votre liste de recettes à faire`,
+      });
     }
   };
 
@@ -283,6 +280,9 @@ export default function HomeScreen() {
         visible={modalVisible}
         onClose={closeModal}
       />
+
+      {/* Custom Alert Component */}
+      {AlertComponent}
         </>
       )}
     </SafeAreaView>
