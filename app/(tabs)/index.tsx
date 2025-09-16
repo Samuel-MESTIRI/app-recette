@@ -139,7 +139,7 @@ export default function HomeScreen() {
   const renderRecipeItem = ({ item, index }: { item: Recipe; index: number }) => (
     <View style={[
       styles.recipeItem,
-      { marginLeft: index % 2 === 0 ? 0 : Spacing.md }
+      { marginLeft: index % 2 === 0 ? 0 : Spacing.sm } // Espacement réduit pour cartes plus larges
     ]}>
       <RecipeCard
         recipe={item}

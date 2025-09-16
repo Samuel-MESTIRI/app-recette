@@ -1,14 +1,14 @@
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { BorderRadius, Colors, FontSizes, Spacing } from '@/constants/theme';
+import { Colors, FontSizes, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Recipe } from '@/types';
 import React from 'react';
 import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width - (Spacing.lg * 3)) / 2; // 2 colonnes avec espacement
+const cardWidth = (width - (Spacing.md * 3)) / 2; // 2 colonnes avec espacement réduit pour des cartes plus larges
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -21,47 +21,16 @@ export default function RecipeCard({ recipe, onPress, onFavoritePress, onAddToTo
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'facile':
-        return colors.success;
-      case 'moyen':
-        return colors.warning;
-      case 'difficile':
-        return colors.error;
-      default:
-        return colors.textSecondary;
-    }
-  };
-
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <Card style={styles.container} padding="none">
-        {/* Image avec bouton favori */}
+        {/* Image */}
         <View style={styles.imageContainer}>
           <Image 
             source={{ uri: recipe.image }} 
             style={styles.image}
             resizeMode="cover"
           />
-          <TouchableOpacity 
-            style={[styles.favoriteButton, { backgroundColor: colors.backgroundWhite }]}
-            onPress={onFavoritePress}
-            activeOpacity={0.8}
-          >
-            <IconSymbol 
-              name={recipe.isFavorite ? "heart.fill" : "heart"} 
-              size={16} 
-              color={recipe.isFavorite ? colors.error : colors.textLight} 
-            />
-          </TouchableOpacity>
-          
-          {/* Badge catégorie */}
-          <View style={[styles.categoryBadge, { backgroundColor: colors.primary }]}>
-            <ThemedText style={styles.categoryText}>
-              {recipe.category}
-            </ThemedText>
-          </View>
         </View>
 
         {/* Contenu */}
@@ -85,21 +54,26 @@ export default function RecipeCard({ recipe, onPress, onFavoritePress, onAddToTo
             </View>
             
             <View style={styles.infoItem}>
-              <IconSymbol name="chart.bar" size={14} color={getDifficultyColor(recipe.difficulty)} />
-              <ThemedText style={[styles.infoText, { color: getDifficultyColor(recipe.difficulty) }]}>
-                {recipe.difficulty}
+              <IconSymbol name="person.2" size={14} color={colors.textLight} />
+              <ThemedText style={[styles.infoText, { color: colors.textSecondary }]}>
+                {recipe.servings} pers.
               </ThemedText>
             </View>
           </View>
 
-          {/* Portions et bouton à faire */}
+          {/* Boutons d'action */}
           <View style={styles.footer}>
-            <View style={styles.servingsContainer}>
-              <IconSymbol name="person.2" size={16} color={colors.textLight} />
-              <ThemedText style={[styles.servings, { color: colors.textLight }]}>
-                {recipe.servings} personnes
-              </ThemedText>
-            </View>
+            <TouchableOpacity 
+              style={[styles.favoriteButton, { backgroundColor: colors.backgroundWhite }]}
+              onPress={onFavoritePress}
+              activeOpacity={0.8}
+            >
+              <IconSymbol 
+                name={recipe.isFavorite ? "heart.fill" : "heart"} 
+                size={16} 
+                color={recipe.isFavorite ? colors.error : colors.textLight} 
+              />
+            </TouchableOpacity>
             
             {onAddToTodo && (
               <TouchableOpacity 
@@ -107,7 +81,7 @@ export default function RecipeCard({ recipe, onPress, onFavoritePress, onAddToTo
                 style={[styles.todoButton, { backgroundColor: colors.primary }]}
                 activeOpacity={0.8}
               >
-                <IconSymbol name="plus" size={14} color="white" />
+                <ThemedText style={styles.todoButtonText}>Ajouter</ThemedText>
               </TouchableOpacity>
             )}
           </View>
@@ -122,6 +96,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     overflow: 'hidden',
     width: cardWidth,
+    minHeight: 240, // Hauteur minimale fixe pour éviter les variations
   },
   imageContainer: {
     position: 'relative',
@@ -132,36 +107,21 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   favoriteButton: {
-    position: 'absolute',
-    top: Spacing.sm,
-    right: Spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
     width: 32,
     height: 32,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  categoryBadge: {
-    position: 'absolute',
-    bottom: Spacing.sm,
-    left: Spacing.sm,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs / 2,
-    borderRadius: BorderRadius.sm,
-  },
-  categoryText: {
-    fontSize: FontSizes.xs,
-    color: 'white',
-    fontWeight: '600',
+    shadowRadius: 2,
+    elevation: 2,
   },
   content: {
     padding: Spacing.sm,
     gap: Spacing.xs,
+    flex: 1, // Permet au contenu de s'étendre pour maintenir la hauteur constante
   },
   title: {
     lineHeight: 18,
@@ -188,24 +148,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  servingsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs / 2,
-    flex: 1,
-    marginRight: Spacing.xs,
-  },
-  servings: {
-    fontSize: FontSizes.xs,
-    fontWeight: '500',
+    marginTop: 'auto', // Pousse le footer vers le bas
   },
   todoButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
@@ -213,9 +163,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   todoButtonText: {
-    fontSize: 10,
-    fontWeight: '700',
-    marginLeft: Spacing.xs / 2,
+    fontSize: 12,
+    fontWeight: '600',
     color: 'white',
   },
 });
