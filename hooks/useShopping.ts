@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/auth-context';
 import {
+    addManualShoppingItem,
     addRecipeIngredientsToShoppingList,
     addShoppingItem,
     calculateShoppingListStats,
@@ -30,6 +31,20 @@ export const useShopping = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Fonction utilitaire pour trier les éléments (non rayés en premier)
+  const sortItems = (items: ShoppingItem[]): ShoppingItem[] => {
+    return [...items].sort((a, b) => {
+      // Les éléments "pending" (non rayés) avant les "purchased" (rayés)
+      if (a.status === 'pending' && b.status === 'purchased') return -1;
+      if (a.status === 'purchased' && b.status === 'pending') return 1;
+      
+      // Si même statut, trier par date de création (plus récent en premier)
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+  };
+
   // Charger tous les éléments de l'utilisateur
   const fetchItems = async () => {
     console.log('🛒 fetchItems appelé');
@@ -51,7 +66,9 @@ export const useShopping = () => {
       if (fetchedItems?.length > 0) {
         console.log('🛒 Premier item:', fetchedItems[0]);
       }
-      setItems(fetchedItems);
+      // Trier les éléments avec les non rayés en premier
+      const sortedItems = sortItems(fetchedItems);
+      setItems(sortedItems);
     } catch (err) {
       console.error('❌ Erreur fetchItems:', err);
       setError('Erreur lors du chargement de la liste de courses');
@@ -81,6 +98,36 @@ export const useShopping = () => {
     }
   };
 
+  // Ajouter un élément manuel facilement
+  const addManualItem = async (
+    name: string, 
+    options?: {
+      quantity?: number;
+      unit?: string;
+      category?: string;
+      priority?: 'low' | 'medium' | 'high';
+      notes?: string;
+    }
+  ) => {
+    if (!user) {
+      throw new Error('Utilisateur non connecté');
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const itemId = await addManualShoppingItem(name, user.id, options);
+      await fetchItems(); // Recharger les éléments
+      return itemId;
+    } catch (err) {
+      setError('Erreur lors de l\'ajout de l\'élément');
+      console.error('Erreur addManualItem:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Mettre à jour un élément
   const updateItem = async (itemId: string, updates: Partial<ShoppingItem>) => {
     setLoading(true);
@@ -94,6 +141,30 @@ export const useShopping = () => {
       throw err;
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Mettre à jour un élément de manière optimiste (mise à jour immédiate de l'interface)
+  const updateItemOptimistic = async (itemId: string, updates: Partial<ShoppingItem>) => {
+    // Mise à jour optimiste : on modifie l'état local immédiatement
+    setItems(prevItems => {
+      const updatedItems = prevItems.map(item => 
+        item.id === itemId 
+          ? { ...item, ...updates, updatedAt: new Date() }
+          : item
+      );
+      // Appliquer le tri pour que les éléments rayés aillent à la fin
+      return sortItems(updatedItems);
+    });
+
+    // Ensuite on fait l'update en arrière-plan
+    try {
+      await updateShoppingItem(itemId, updates);
+    } catch (err) {
+      console.error('Erreur lors de l\'update en arrière-plan:', err);
+      // En cas d'erreur, on recharge les données pour revenir à l'état correct
+      await fetchItems();
+      setError('Erreur lors de la synchronisation');
     }
   };
 
@@ -232,7 +303,9 @@ export const useShopping = () => {
     error,
     fetchItems,
     addItem,
+    addManualItem,
     updateItem,
+    updateItemOptimistic,
     removeItem,
     clearList,
     addRecipeIngredients,

@@ -1,4 +1,4 @@
-import { Recipe } from '@/constants/demo-recipes';
+import { Recipe } from '@/types';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 interface TodoRecipe extends Recipe {

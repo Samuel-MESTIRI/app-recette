@@ -7,13 +7,14 @@ import { ShoppingItem } from '@/types';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,13 +26,15 @@ export default function ExploreScreen() {
     loading,
     error,
     fetchItems,
-    updateItem,
+    updateItemOptimistic,
     removeItem,
     clearList,
-    getStats
+    addManualItem
   } = useShopping();
   
   const [refreshing, setRefreshing] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
   // Se rafraîchir chaque fois qu'on va sur cet onglet
   useFocusEffect(
@@ -57,9 +60,10 @@ export default function ExploreScreen() {
   const toggleItemStatus = async (item: ShoppingItem) => {
     try {
       const newStatus = item.status === 'pending' ? 'purchased' : 'pending';
-      await updateItem(item.id!, { status: newStatus });
+      await updateItemOptimistic(item.id!, { status: newStatus });
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de modifier le statut de cet élément');
+      // On supprime l'alerte d'erreur pour ne pas déranger l'utilisateur
+      console.error('Erreur lors du toggle:', error);
     }
   };
 
@@ -103,6 +107,25 @@ export default function ExploreScreen() {
         }
       ]
     );
+  };
+
+  const addNewItem = async () => {
+    if (!newItemName.trim()) {
+      Alert.alert('Erreur', 'Veuillez saisir un nom pour l\'élément');
+      return;
+    }
+
+    setIsAddingItem(true);
+    try {
+      await addManualItem(newItemName.trim());
+      setNewItemName(''); // Vider le champ après ajout
+      Alert.alert('Succès', `"${newItemName.trim()}" a été ajouté à votre liste`);
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible d\'ajouter cet élément');
+      console.error('Erreur lors de l\'ajout:', error);
+    } finally {
+      setIsAddingItem(false);
+    }
   };
 
   const renderShoppingItem = ({ item }: { item: ShoppingItem }) => (
@@ -167,10 +190,6 @@ export default function ExploreScreen() {
     </View>
   );
 
-  const stats = getStats();
-  const pendingItems = items.filter(item => item.status === 'pending');
-  const purchasedItems = items.filter(item => item.status === 'purchased');
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
@@ -192,35 +211,46 @@ export default function ExploreScreen() {
         )}
       </View>
 
-      {/* Statistiques */}
-      {items.length > 0 && (
-        <View style={[styles.statsContainer, { backgroundColor: colors.backgroundWhite, borderBottomColor: colors.border }]}>
-          <View style={styles.statItem}>
-            <ThemedText style={[styles.statNumber, { color: colors.primary }]}>
-              {pendingItems.length}
-            </ThemedText>
-            <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
-              À acheter
-            </ThemedText>
-          </View>
-          <View style={styles.statItem}>
-            <ThemedText style={[styles.statNumber, { color: colors.success }]}>
-              {purchasedItems.length}
-            </ThemedText>
-            <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
-              Achetés
-            </ThemedText>
-          </View>
-          <View style={styles.statItem}>
-            <ThemedText style={[styles.statNumber, { color: colors.text }]}>
-              {Math.round(stats.completionRate)}%
-            </ThemedText>
-            <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
-              Terminé
-            </ThemedText>
-          </View>
+      {/* Champ d'ajout d'élément */}
+      <View style={[styles.addItemContainer, { backgroundColor: colors.backgroundWhite, borderBottomColor: colors.border }]}>
+        <View style={styles.addItemRow}>
+          <TextInput
+            style={[
+              styles.addItemInput,
+              { 
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+                color: colors.text
+              }
+            ]}
+            placeholder="Ajouter un élément (ex: lait, pain...)"
+            placeholderTextColor={colors.textSecondary}
+            value={newItemName}
+            onChangeText={setNewItemName}
+            onSubmitEditing={addNewItem}
+            returnKeyType="done"
+            editable={!isAddingItem}
+          />
+          <TouchableOpacity
+            style={[
+              styles.addItemButton,
+              { 
+                backgroundColor: newItemName.trim() ? colors.primary : colors.border,
+                opacity: isAddingItem ? 0.5 : 1
+              }
+            ]}
+            onPress={addNewItem}
+            disabled={!newItemName.trim() || isAddingItem}
+            activeOpacity={0.7}
+          >
+            {isAddingItem ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <IconSymbol name="plus" size={16} color="white" />
+            )}
+          </TouchableOpacity>
         </View>
-      )}
+      </View>
 
       {/* Loading */}
       {loading && (
@@ -313,24 +343,6 @@ const styles = StyleSheet.create({
   clearButtonText: {
     fontSize: FontSizes.sm,
     fontWeight: '600',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: FontSizes.xl,
-    fontWeight: '700',
-  },
-  statLabel: {
-    fontSize: FontSizes.xs,
-    marginTop: Spacing.xs / 2,
   },
   loadingContainer: {
     flex: 1,
@@ -441,6 +453,31 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: Spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addItemContainer: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+  },
+  addItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  addItemInput: {
+    flex: 1,
+    height: 44,
+    paddingHorizontal: Spacing.md,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    fontSize: FontSizes.base,
+  },
+  addItemButton: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },

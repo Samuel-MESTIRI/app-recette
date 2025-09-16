@@ -1,12 +1,12 @@
+import RecipeModal from '@/components/recipe-modal';
 import { ThemedText } from '@/components/themed-text';
 import Card from '@/components/ui/card';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { BorderRadius, Colors, FontSizes, Spacing } from '@/constants/theme';
 import { TodoRecipe, useApp } from '@/contexts/app-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -23,26 +23,20 @@ export default function TodoRecipesScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const { 
     todoRecipes, 
-    removeRecipeFromTodo, 
-    markRecipeAsDone 
+    removeRecipeFromTodo
   } = useApp();
+  
+  const [selectedRecipe, setSelectedRecipe] = useState<TodoRecipe | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const markAsDone = (recipeId: string) => {
-    const recipe = todoRecipes.find(r => r.id === recipeId);
-    if (!recipe) return;
+  const openRecipeModal = (recipe: TodoRecipe) => {
+    setSelectedRecipe(recipe);
+    setModalVisible(true);
+  };
 
-    Alert.alert(
-      'Recette terminée ! 🎉',
-      `Félicitations ! Vous avez cuisiné "${recipe.title}". Voulez-vous la retirer de votre liste ?`,
-      [
-        { text: 'Garder dans la liste', style: 'cancel' },
-        { 
-          text: 'Retirer de la liste', 
-          style: 'default',
-          onPress: () => markRecipeAsDone(recipeId)
-        }
-      ]
-    );
+  const closeRecipeModal = () => {
+    setModalVisible(false);
+    setSelectedRecipe(null);
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -70,8 +64,12 @@ export default function TodoRecipesScreen() {
   };
 
   const renderTodoRecipe = ({ item }: { item: TodoRecipe }) => (
-    <Card style={styles.recipeCard}>
-      <View style={styles.recipeContent}>
+    <TouchableOpacity 
+      onPress={() => openRecipeModal(item)}
+      activeOpacity={0.7}
+    >
+      <Card style={styles.recipeCard}>
+        <View style={styles.recipeContent}>
         {/* Image */}
         <View style={styles.imageContainer}>
           <Image 
@@ -118,21 +116,15 @@ export default function TodoRecipesScreen() {
         {/* Actions */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: colors.success }]}
-            onPress={() => markAsDone(item.id)}
-          >
-            <IconSymbol name="checkmark" size={20} color="white" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
             style={[styles.actionButton, { backgroundColor: colors.error }]}
-            onPress={() => removeRecipeFromTodo(item.id)}
+            onPress={() => removeRecipeFromTodo(item.id || '')}
           >
             <IconSymbol name="trash" size={18} color="white" />
           </TouchableOpacity>
         </View>
       </View>
     </Card>
+    </TouchableOpacity>
   );
 
   return (
@@ -159,7 +151,7 @@ export default function TodoRecipesScreen() {
           return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
         })}
         renderItem={renderTodoRecipe}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => item.id || `todo-${index}`}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
@@ -173,6 +165,13 @@ export default function TodoRecipesScreen() {
             </ThemedText>
           </View>
         }
+      />
+      
+      {/* Modal de détails de recette */}
+      <RecipeModal
+        recipe={selectedRecipe}
+        visible={modalVisible}
+        onClose={closeRecipeModal}
       />
     </SafeAreaView>
   );
@@ -248,6 +247,7 @@ const styles = StyleSheet.create({
   actionsContainer: {
     gap: Spacing.sm,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   actionButton: {
     width: 36,

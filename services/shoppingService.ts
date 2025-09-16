@@ -1,24 +1,24 @@
 import {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    getDocs,
-    orderBy,
-    query,
-    updateDoc,
-    where,
-    writeBatch
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../config/firebase.config';
 import {
-    BulkShoppingAction,
-    CreateShoppingItemData,
-    ShoppingItem,
-    ShoppingItemsByCategory,
-    ShoppingItemsByRecipe,
-    ShoppingListStats,
-    ShoppingSnapshot
+  BulkShoppingAction,
+  CreateShoppingItemData,
+  ShoppingItem,
+  ShoppingItemsByCategory,
+  ShoppingItemsByRecipe,
+  ShoppingListStats,
+  ShoppingSnapshot
 } from '../types';
 
 const SHOPPING_ITEMS_COLLECTION = 'shoppingItems';
@@ -78,6 +78,27 @@ export const addShoppingItem = async (itemData: CreateShoppingItemData, userId: 
     console.error('❌ Erreur lors de l\'ajout de l\'élément:', error);
     throw error;
   }
+};
+
+// Fonction helper pour ajouter un élément manuel facilement
+export const addManualShoppingItem = async (
+  name: string, 
+  userId: string, 
+  options?: {
+    quantity?: number;
+    unit?: string;
+    category?: string;
+    priority?: 'low' | 'medium' | 'high';
+    notes?: string;
+  }
+): Promise<string> => {
+  const itemData: CreateShoppingItemData = {
+    name,
+    source: 'manual',
+    ...options
+  };
+  
+  return addShoppingItem(itemData, userId);
 };
 
 // Récupérer tous les éléments de la liste de courses d'un utilisateur
