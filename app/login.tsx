@@ -26,7 +26,7 @@ export default function LoginScreen() {
         showErrorAlert(
           showAlert,
           'Erreur de connexion',
-          'Vérifiez vos identifiants et réessayez. Utilisez demo@recette.com / password'
+          'Vérifiez vos identifiants et réessayez.'
         );
       }
       // La navigation se fait automatiquement via le layout quand isAuthenticated change
@@ -118,45 +118,11 @@ export default function LoginScreen() {
                 fullWidth
                 style={styles.loginButton}
               />
-
-              {/* Bouton de connexion rapide pour test */}
-              <Button
-                title="Connexion rapide (Demo)"
-                variant="outline"
-                onPress={() => {
-                  setEmail('demo@recette.com');
-                  setPassword('password');
-                  // Auto-login après un petit délai
-                  setTimeout(() => handleLogin(), 100);
-                }}
-                fullWidth
-                style={styles.quickLoginButton}
-              />
             </View>
           </Card>
 
           {/* Options supplémentaires */}
           <View style={styles.footer}>
-            {/* Identifiants de démo */}
-            <Card style={styles.demoCard}>
-              <ThemedText type="caption" style={[styles.demoTitle, { color: colors.primary }]}>
-                Identifiants de démonstration :
-              </ThemedText>
-              <ThemedText type="caption" style={{ color: colors.textSecondary }}>
-                Email: demo@recette.com
-              </ThemedText>
-              <ThemedText type="caption" style={{ color: colors.textSecondary }}>
-                Mot de passe: password
-              </ThemedText>
-            </Card>
-
-            <ThemedText 
-              type="link" 
-              style={[styles.forgotPassword, { color: colors.primary }]}
-            >
-              Mot de passe oublié ?
-            </ThemedText>
-            
             <View style={styles.divider}>
               <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               <ThemedText type="caption" style={[styles.dividerText, { color: colors.textLight }]}>
@@ -231,24 +197,9 @@ const styles = StyleSheet.create({
   loginButton: {
     marginTop: Spacing.sm,
   },
-  quickLoginButton: {
-    marginTop: Spacing.xs,
-  },
   footer: {
     alignItems: 'center',
     gap: Spacing.lg,
-  },
-  demoCard: {
-    padding: Spacing.md,
-    backgroundColor: 'transparent',
-    borderStyle: 'dashed',
-  },
-  demoTitle: {
-    fontWeight: '600',
-    marginBottom: Spacing.xs,
-  },
-  forgotPassword: {
-    textAlign: 'center',
   },
   divider: {
     flexDirection: 'row',

@@ -1,4 +1,3 @@
-import MigrationPanel from '@/components/migration-panel';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Card, Input } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -8,13 +7,13 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    Image,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  Alert,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -444,9 +443,6 @@ export default function SettingsScreen() {
             style={styles.logoutButton}
           />
         </Card>
-
-        {/* Panel de migration des données */}
-        <MigrationPanel />
       </ScrollView>
     </SafeAreaView>
   );

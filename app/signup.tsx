@@ -267,6 +267,7 @@ const styles = StyleSheet.create({
   backButton: {
     padding: Spacing.sm,
     marginLeft: -Spacing.sm,
+    marginTop: Spacing.sm,
   },
   header: {
     alignItems: 'center',

@@ -41,6 +41,7 @@ function RootLayoutNav() {
       <Stack initialRouteName={isAuthenticated ? "(tabs)" : "login"}>
         <Stack.Screen name="loading" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="signup" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Nouvelle Recette' }} />
       </Stack>

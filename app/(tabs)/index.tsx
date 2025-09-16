@@ -3,7 +3,6 @@ import RecipeModal from '@/components/recipe-modal';
 import { ThemedText } from '@/components/themed-text';
 import { showErrorAlert, useCustomAlert } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { RECIPE_CATEGORIES } from '@/constants/demo-recipes';
 import { Colors, Spacing } from '@/constants/theme';
 import { useApp } from '@/contexts/app-context';
 import { useAuth } from '@/contexts/auth-context';
@@ -11,10 +10,10 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useShopping } from '@/hooks/useShopping';
 import { Recipe } from '@/types';
-import { checkFirebaseData, migrateDemoDataToFirebase } from '@/utils/migration';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RECIPE_CATEGORIES } from '../../constants/categories';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -34,7 +33,7 @@ export default function HomeScreen() {
 
   // Initialiser Firebase avec les données de démo si nécessaire
   useEffect(() => {
-    const initializeFirebase = async () => {
+    if (!isInitialized) {
       // ⚠️ IMPORTANT: Ne pas essayer d'accéder à Firestore si pas connecté
       if (!user) {
         console.log('👤 Utilisateur non connecté - pas d\'accès à Firestore');
@@ -42,27 +41,9 @@ export default function HomeScreen() {
         return;
       }
 
-      try {
-        const hasData = await checkFirebaseData();
-        if (!hasData) {
-          console.log('📝 Première utilisation - migration des données de démo...');
-          await migrateDemoDataToFirebase();
-          await refetch(); // Recharger les données après migration
-          console.log('✅ Migration terminée !');
-        } else {
-          console.log('📊 Données Firebase déjà présentes, pas de migration nécessaire');
-        }
-        setIsInitialized(true);
-      } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
-        setIsInitialized(true); // Continuer même en cas d'erreur
-      }
-    };
-
-    if (!isInitialized) {
-      initializeFirebase();
+      setIsInitialized(true);
     }
-  }, [refetch, isInitialized, user]); // Ajout de user comme dépendance
+  }, [isInitialized, user]);
 
   // Filtrer les recettes
   const filteredRecipes = useMemo(() => {
@@ -221,7 +202,7 @@ export default function HomeScreen() {
           style={styles.categoriesContainer}
           contentContainerStyle={styles.categoriesContent}
         >
-          {RECIPE_CATEGORIES.map((category) => (
+          {RECIPE_CATEGORIES.map((category: string) => (
             <TouchableOpacity
               key={category}
               onPress={() => setSelectedCategory(category)}

@@ -1,13 +1,12 @@
 import {
-    User,
-    changePassword,
-    logOut,
-    onAuthStateChange,
-    signIn,
-    signUp,
-    updateUserProfile
+  User,
+  changePassword,
+  logOut,
+  onAuthStateChange,
+  signIn,
+  signUp,
+  updateUserProfile
 } from '@/services/authService';
-import { diagnoseAuthIssues, testFirebaseConfig } from '@/utils/firebase-test';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
@@ -30,13 +29,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Observer l'état d'authentification Firebase
   useEffect(() => {
     let mounted = true;
-    
-    // Test de configuration au démarrage
-    testFirebaseConfig().then(isConfigured => {
-      if (!isConfigured) {
-        diagnoseAuthIssues();
-      }
-    });
     
     const unsubscribe = onAuthStateChange((firebaseUser) => {
       if (mounted) {
