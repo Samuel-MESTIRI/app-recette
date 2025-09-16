@@ -2,7 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors, FontSizes, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import { Recipe } from '@/types';
 import React from 'react';
 import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -18,8 +18,8 @@ interface RecipeCardProps {
 }
 
 export default function RecipeCard({ recipe, onPress, onFavoritePress, onAddToTodo }: RecipeCardProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>

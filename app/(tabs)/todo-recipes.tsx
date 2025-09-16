@@ -4,7 +4,7 @@ import Card from '@/components/ui/card';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { BorderRadius, Colors, FontSizes, Spacing } from '@/constants/theme';
 import { TodoRecipe, useApp } from '@/contexts/app-context';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -19,8 +19,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width } = Dimensions.get('window');
 
 export default function TodoRecipesScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
   const { 
     todoRecipes, 
     removeRecipeFromTodo

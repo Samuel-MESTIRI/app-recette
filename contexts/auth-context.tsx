@@ -5,6 +5,7 @@ import {
   onAuthStateChange,
   signIn,
   signUp,
+  updateUserPreferences,
   updateUserProfile
 } from '@/services/authService';
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -16,6 +17,7 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   updateProfile: (name: string, email: string, photo?: string | null) => Promise<boolean>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  updateTheme: (theme: 'auto' | 'light' | 'dark') => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -128,6 +130,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Fonction de mise à jour du thème
+  const updateTheme = async (theme: 'auto' | 'light' | 'dark'): Promise<boolean> => {
+    if (!user) {
+      console.error('Utilisateur non connecté');
+      return false;
+    }
+
+    try {
+      await updateUserPreferences(user.id, { theme });
+      
+      // Mettre à jour l'état local
+      setUser({
+        ...user,
+        preferences: {
+          ...user.preferences,
+          theme
+        },
+        updatedAt: new Date()
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('Erreur de mise à jour du thème:', error.message);
+      return false;
+    }
+  };
+
   // Fonction de déconnexion
   const logout = () => {
     console.log('🚪 Début de la déconnexion...');
@@ -155,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signup,
     updateProfile,
     updatePassword,
+    updateTheme,
     logout,
     isAuthenticated: !!user,
   };

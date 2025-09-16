@@ -3,15 +3,15 @@ import { Button, Card, Input, showErrorAlert, useCustomAlert } from '@/component
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SignupScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
   const { signup, isLoading } = useAuth();
   const { showAlert, AlertComponent } = useCustomAlert();
   

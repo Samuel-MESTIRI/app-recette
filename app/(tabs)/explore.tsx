@@ -2,8 +2,8 @@ import { ThemedText } from '@/components/themed-text';
 import { showConfirmAlert, showErrorAlert, useCustomAlert } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { BorderRadius, Colors, FontSizes, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useShopping } from '@/hooks/useShopping';
+import { useTheme } from '@/hooks/useTheme';
 import { ShoppingItem } from '@/types';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -19,8 +19,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ExploreScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
   const {
     items,
     loading,

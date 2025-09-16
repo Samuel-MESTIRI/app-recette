@@ -1,19 +1,19 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { BorderRadius, Colors, FontSizes, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useShopping } from '@/hooks/useShopping';
+import { useTheme } from '@/hooks/useTheme';
 import { Recipe } from '@/types';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    Image,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  Alert,
+  Dimensions,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,8 +26,8 @@ interface RecipeModalProps {
 }
 
 export default function RecipeModal({ recipe, visible, onClose }: RecipeModalProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
   const { addRecipeIngredients, loading: shoppingLoading } = useShopping();
   const [isAddingIngredients, setIsAddingIngredients] = useState(false);
 

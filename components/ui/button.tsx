@@ -1,5 +1,5 @@
 import { BorderRadius, Colors, FontSizes, Shadows, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import React from 'react';
 import { Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
 
@@ -22,8 +22,8 @@ export default function Button({
   fullWidth = false,
   style,
 }: ButtonProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
 
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {

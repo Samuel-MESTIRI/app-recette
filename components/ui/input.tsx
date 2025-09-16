@@ -1,5 +1,5 @@
 import { BorderRadius, Colors, FontSizes, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import React from 'react';
 import { StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle } from 'react-native';
 
@@ -20,8 +20,8 @@ export default function Input({
   style,
   ...props
 }: InputProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
 
   const inputStyle = {
     backgroundColor: colors.backgroundWhite,

@@ -6,9 +6,9 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors, Spacing } from '@/constants/theme';
 import { useApp } from '@/contexts/app-context';
 import { useAuth } from '@/contexts/auth-context';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useShopping } from '@/hooks/useShopping';
+import { useTheme } from '@/hooks/useTheme';
 import { Recipe } from '@/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
@@ -16,8 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { RECIPE_CATEGORIES } from '../../constants/categories';
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
   const { user } = useAuth();
   const { addRecipeToTodo } = useApp();
   const { addRecipeIngredients } = useShopping();

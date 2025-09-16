@@ -1,14 +1,14 @@
 import {
-    createUserWithEmailAndPassword,
-    EmailAuthProvider,
-    User as FirebaseUser,
-    onAuthStateChanged,
-    reauthenticateWithCredential,
-    sendPasswordResetEmail,
-    signInWithEmailAndPassword,
-    signOut,
-    updatePassword,
-    updateProfile
+  createUserWithEmailAndPassword,
+  EmailAuthProvider,
+  User as FirebaseUser,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updatePassword,
+  updateProfile
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase.config';
@@ -20,6 +20,10 @@ export interface User {
   photo?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
+  preferences?: {
+    theme?: 'auto' | 'light' | 'dark';
+    notifications?: boolean;
+  };
 }
 
 const USERS_COLLECTION = 'users';
@@ -223,5 +227,22 @@ const getAuthErrorMessage = (errorCode: string): string => {
       return 'Cette action nécessite une reconnexion récente';
     default:
       return 'Une erreur est survenue. Veuillez réessayer';
+  }
+};
+
+// Mettre à jour les préférences utilisateur
+export const updateUserPreferences = async (
+  userId: string, 
+  preferences: Partial<User['preferences']>
+): Promise<void> => {
+  try {
+    const userRef = doc(db, USERS_COLLECTION, userId);
+    await updateDoc(userRef, {
+      preferences: preferences,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des préférences:', error);
+    throw error;
   }
 };

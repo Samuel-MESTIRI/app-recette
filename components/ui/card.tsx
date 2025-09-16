@@ -1,5 +1,5 @@
 import { BorderRadius, Colors, Shadows, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import React from 'react';
 import { View, ViewStyle } from 'react-native';
 
@@ -16,8 +16,8 @@ export default function Card({
   shadow = 'md',
   padding = 'md',
 }: CardProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { activeTheme } = useTheme();
+  const colors = Colors[activeTheme];
 
   const getCardStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {

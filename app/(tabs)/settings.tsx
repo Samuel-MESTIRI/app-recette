@@ -3,7 +3,7 @@ import { Button, Card, Input } from '@/components/ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import {
@@ -20,8 +20,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width } = Dimensions.get('window');
 
 export default function SettingsScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { themePreference, activeTheme, changeTheme } = useTheme();
+  const colors = Colors[activeTheme];
   const { user, logout, updateProfile, updatePassword, isLoading } = useAuth();
   
   const [profileData, setProfileData] = useState({
@@ -248,6 +248,63 @@ export default function SettingsScreen() {
                 </ThemedText>
               </TouchableOpacity>
             </View>
+          </View>
+        </Card>
+
+        {/* Section Apparence */}
+        <Card style={styles.profileCard}>
+          <View style={styles.cardHeader}>
+            <ThemedText type="subtitle" style={styles.cardTitle}>
+              Apparence
+            </ThemedText>
+            <IconSymbol 
+              name="moon.stars" 
+              size={18} 
+              color={colors.primary} 
+            />
+          </View>
+
+          <View style={styles.themeSection}>
+            <ThemedText style={[styles.themeLabel, { color: colors.textSecondary }]}>
+              Thème de l'application
+            </ThemedText>
+            <View style={styles.themeOptions}>
+              {[
+                { value: 'auto', label: 'Auto', icon: 'gearshape' },
+                { value: 'light', label: 'Clair', icon: 'sun.max' },
+                { value: 'dark', label: 'Sombre', icon: 'moon' }
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.themeOption,
+                    {
+                      backgroundColor: themePreference === option.value ? colors.primary : colors.backgroundWhite,
+                      borderColor: themePreference === option.value ? colors.primary : colors.border,
+                    }
+                  ]}
+                  onPress={() => changeTheme(option.value as 'auto' | 'light' | 'dark')}
+                >
+                  <IconSymbol 
+                    name={option.icon as any} 
+                    size={18} 
+                    color={themePreference === option.value ? '#FFFFFF' : colors.textSecondary} 
+                  />
+                  <ThemedText style={[
+                    styles.themeOptionText,
+                    { color: themePreference === option.value ? '#FFFFFF' : colors.text }
+                  ]}>
+                    {option.label}
+                  </ThemedText>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <ThemedText style={[styles.themeHint, { color: colors.textLight }]}>
+              {themePreference === 'auto' 
+                ? `Actuel : ${activeTheme === 'dark' ? 'Sombre' : 'Clair'} (système)`
+                : `Mode ${themePreference === 'dark' ? 'sombre' : 'clair'} activé`
+              }
+            </ThemedText>
           </View>
         </Card>
 
@@ -566,5 +623,42 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginTop: Spacing.md,
+  },
+  // Styles pour la section thème
+  themeSection: {
+    gap: Spacing.md,
+  },
+  themeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: Spacing.xs,
+  },
+  themeOptions: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+  },
+  themeOption: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xs,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    gap: Spacing.xs,
+    minHeight: 70,
+  },
+  themeOptionText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  themeHint: {
+    fontSize: 11,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginTop: Spacing.xs,
+    opacity: 0.7,
   },
 });

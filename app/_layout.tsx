@@ -7,11 +7,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AppProvider } from '@/contexts/app-context';
 import { AuthProvider, useAuth } from '@/contexts/auth-context';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/hooks/useTheme';
 import LoadingScreen from './loading';
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const { activeTheme } = useTheme();
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ function RootLayoutNav() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={activeTheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack initialRouteName={isAuthenticated ? "(tabs)" : "login"}>
         <Stack.Screen name="loading" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
